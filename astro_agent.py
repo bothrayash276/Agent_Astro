@@ -10,11 +10,12 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         character1 = pygame.image.load("image/astronaut1.png")
         character2 = pygame.image.load("image/astronaut2.png")
-        self.character_list = [character1, character2]
+        self.character_list = [character1,character2]
         self.character_index = 0
         self.image = self.character_list[self.character_index]
         self.image = pygame.transform.rotozoom(self.image,0,0.20)
         self.rect = self.image.get_rect(midbottom = (260,500))
+        self.speed = 200
 
         
         
@@ -48,42 +49,54 @@ class Player(pygame.sprite.Sprite):
         keyboard = pygame.key.get_pressed()
         
         # Jump
-        if(keyboard[pygame.K_SPACE] and self.rect.y>=325):
+        if((keyboard[pygame.K_SPACE] or keyboard[pygame.K_w]) and self.rect.y>=325):
             self.char_gravity = -20
 
         # Moving Right
         if(keyboard[pygame.K_d] and self.rect.x <=600):
             self.char_push = 5
+            self.character_index += 0.1
+            if self.character_index >= len(self.character_list): self.character_index = 0
+            self.image = self.character_list[int(self.character_index)]
+            self.image = pygame.transform.rotozoom(self.image,0,0.20)
         # Moving Left
         if(keyboard[pygame.K_a] and self.rect.x >=160):
             self.char_push = -5
+            self.character_index += 0.1
+            if self.character_index >= len(self.character_list): self.character_index = 0
+            self.image = self.character_list[int(self.character_index)]
+            self.image = pygame.transform.rotozoom(self.image,0,0.20)
+            self.image = pygame.transform.flip(self.image, True, False)
 
    
 
     
 
     def firing(self):
-        speed = 100
-        if(event.type == pygame.MOUSEBUTTONDOWN):
-            speed -= 0.1
-            bullet_hitbox.x += speed
+        self.speed -= 0.1
+        bullet_hitbox.x += self.speed
         if(bullet_hitbox.x > 1900):
-            bullet_hitbox.x = self.rect.x
-            bullet_hitbox.y = self.rect.y
-            speed = 100
+            bullet_hitbox.x = self.rect.x + (341-158)
+            bullet_hitbox.y = self.rect.y + (400-335)
+            self.speed = 200
+
 
 
     def update(self):
-        self.animation()
+        # self.animation()
         self.movement()
         self.ground_state()
-        self.firing()
+        if(event.type == pygame.MOUSEBUTTONDOWN and self.rect.y ==325):
+            self.firing()
+        # print(f"{self.rect.x}, {self.rect.y} and ", pygame.mouse.get_pos())
         
         
 
 bullet = pygame.image.load("image/bullet.png")
-bullet_hitbox = bullet.get_rect(center = (160,325))
+bullet_hitbox = bullet.get_rect(center = (347,411))
 bullet = pygame.transform.rotozoom(bullet,180,0.1)
+# bullet.x = character_position.x + (341-158)
+# bullet.y = character_position.y + (414-325)
 
 def leave():
     pygame.quit()
@@ -95,7 +108,7 @@ display = pygame.display.set_mode((1280,720))
 game_icon = pygame.image.load("image/icon.png")
 pygame.display.set_icon(game_icon)
 pygame.display.set_caption("Agent Astro")
-game_event = 1            # 0 --> Intro / Outro Screen    1 --> Main Game
+game_event = 0            # 0 --> Intro / Outro Screen    1 --> Main Game
 
 frameRate = pygame.time.Clock()
 
@@ -169,6 +182,7 @@ while True:
         # display.blit(bullet, (600,600))
         display.blit(bullet,bullet_hitbox)
         # firing(player)
+        # print(pygame.mouse.get_pos())
         
 
 
