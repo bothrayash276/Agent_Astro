@@ -19,6 +19,10 @@ class Player(pygame.sprite.Sprite):
         self.speed = 200
         self.bullet_speed = 100
         self.left = False
+        self.jump_sound = pygame.mixer.Sound("sound/jump.mp3")
+        self.jump_sound.set_volume(0.5)
+        self.walk_sound = pygame.mixer.Sound("sound/footstep.mp3")
+        self.walk_sound.set_volume(1)
 
         
         
@@ -56,6 +60,7 @@ class Player(pygame.sprite.Sprite):
         # Jump
         if((keyboard[pygame.K_SPACE] or keyboard[pygame.K_w] or keyboard[pygame.K_UP]) and self.rect.y>=325):
             self.char_gravity = -20
+            self.jump_sound.play()
 
         # Moving Right
         if((keyboard[pygame.K_d] or keyboard[pygame.K_RIGHT]) and self.rect.x <=600):
@@ -64,6 +69,7 @@ class Player(pygame.sprite.Sprite):
             if self.character_index >= len(self.character_list): self.character_index = 0
             self.image = self.character_list[int(self.character_index)]
             self.image = pygame.transform.rotozoom(self.image,0,0.20)
+            self.walk_sound.play()
         # Moving Left
         if((keyboard[pygame.K_a] or keyboard[pygame.K_LEFT]) and self.rect.x >=160):
             self.char_push = -5
@@ -72,6 +78,7 @@ class Player(pygame.sprite.Sprite):
             self.image = self.character_list[int(self.character_index)]
             self.image = pygame.transform.rotozoom(self.image,0,0.20)
             self.image = pygame.transform.flip(self.image, True, False)     
+            self.walk_sound.play()
 
     def update(self):
         # self.animation()
@@ -123,6 +130,9 @@ intro_start_text = text_font.render("START", True, "white")
 intro_start_text_rect = intro_start_text.get_rect(topleft = (150, 400))
 intro_quit_text = text_font.render("QUIT", True, "white")
 intro_quit_text_rect = intro_quit_text.get_rect(topleft = (165, 480))
+intro_bgm = pygame.mixer.Sound("sound/game_intro.mp3")
+intro_bgm.set_volume(0.25)
+intro_click_sound = pygame.mixer.Sound("sound/button.mp3")
 
 
 
@@ -146,6 +156,8 @@ p_x = player.sprite.rect.x
 p_y = player.sprite.rect.y + 120
 bullet_hitbox = bullet.get_rect(center = (p_x, p_y))
 star = False
+bullet_sound = pygame.mixer.Sound("sound/gun_shot.mp3")
+bullet_sound.set_volume(0.5)
 
 
 # Main Code
@@ -161,13 +173,19 @@ while True:
         display.blit(intro_game_name2, (125, 175))
         display.blit(intro_start_text, intro_start_text_rect)
         display.blit(intro_quit_text, intro_quit_text_rect)
+        intro_bgm.play(loops=True)
 
         mouse_pos = pygame.mouse.get_pos()      # Returns coords (x,y)
 
 
         if(event.type==pygame.MOUSEBUTTONDOWN):
-            if(intro_quit_text_rect.collidepoint(mouse_pos)): leave()
-            elif(intro_start_text_rect.collidepoint(mouse_pos)): game_event = 1
+            if(intro_quit_text_rect.collidepoint(mouse_pos)): 
+                intro_click_sound.play()
+                leave()
+            elif(intro_start_text_rect.collidepoint(mouse_pos)): 
+                game_event = 1
+                intro_click_sound.play()
+                intro_bgm.stop()
 
 
         
@@ -189,6 +207,7 @@ while True:
         if(star==True):
             bullet_speed = 50
             if(bullet_hitbox.x<1300 and player.sprite.rect.y == 325 and player.sprite.left==False):
+                bullet_sound.play()
                 bullet_speed -= 1
                 bullet_hitbox.x += bullet_speed
                 display.blit(bullet,bullet_hitbox)
