@@ -54,18 +54,18 @@ class Player(pygame.sprite.Sprite):
         keyboard = pygame.key.get_pressed()
         
         # Jump
-        if((keyboard[pygame.K_SPACE] or keyboard[pygame.K_w]) and self.rect.y>=325):
+        if((keyboard[pygame.K_SPACE] or keyboard[pygame.K_w] or keyboard[pygame.K_UP]) and self.rect.y>=325):
             self.char_gravity = -20
 
         # Moving Right
-        if(keyboard[pygame.K_d] and self.rect.x <=600):
+        if((keyboard[pygame.K_d] or keyboard[pygame.K_RIGHT]) and self.rect.x <=600):
             self.char_push = 5
             self.character_index += 0.1
             if self.character_index >= len(self.character_list): self.character_index = 0
             self.image = self.character_list[int(self.character_index)]
             self.image = pygame.transform.rotozoom(self.image,0,0.20)
         # Moving Left
-        if(keyboard[pygame.K_a] and self.rect.x >=160):
+        if((keyboard[pygame.K_a] or keyboard[pygame.K_LEFT]) and self.rect.x >=160):
             self.char_push = -5
             self.character_index += 0.1
             if self.character_index >= len(self.character_list): self.character_index = 0
@@ -145,7 +145,7 @@ bullet = pygame.transform.rotozoom(bullet,180,0.1)
 p_x = player.sprite.rect.x
 p_y = player.sprite.rect.y + 120
 bullet_hitbox = bullet.get_rect(center = (p_x, p_y))
-shoot = False
+star = False
 
 
 # Main Code
@@ -188,11 +188,10 @@ while True:
 
         if(star==True):
             bullet_speed = 50
-            if(bullet_hitbox.x<1300):
-                if(player.sprite.left==False):
-                    bullet_speed -= 1
-                    bullet_hitbox.x += bullet_speed
-                    display.blit(bullet,bullet_hitbox)
+            if(bullet_hitbox.x<1300 and player.sprite.rect.y == 325 and player.sprite.left==False):
+                bullet_speed -= 1
+                bullet_hitbox.x += bullet_speed
+                display.blit(bullet,bullet_hitbox)
             else:
                 # bullet_hitbox.x = player.sprite.rect.x
                 star=False
